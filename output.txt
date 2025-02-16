@@ -1,0 +1,22 @@
+Interface Status
+=================================================================
+DN                                                 Admin State  Speed      MTU   Switching State
+-----------------------------------------------------------------
+topology/pod-1/node-201/sys/phys-[eth1/33]         up           inherit    9150  disabled       
+topology/pod-1/node-201/sys/phys-[eth1/34]         up           inherit    9150  disabled       
+topology/pod-1/node-201/sys/phys-[eth1/35]         up           inherit    9150  disabled       
+topology/pod-1/node-201/sys/phys-[eth1/36]         up           inherit    9150  disabled       
+topology/pod-1/node-201/sys/phys-[eth1/1]          up           inherit    9150  enabled        
+topology/pod-1/node-201/sys/phys-[eth1/2]          up           inherit    9150  enabled        
+topology/pod-1/node-201/sys/phys-[eth1/3]          up           inherit    9150  enabled        
+topology/pod-1/node-201/sys/phys-[eth1/4]          up           inherit    9150  enabled        
+topology/pod-1/node-201/sys/phys-[eth1/5]          up           inherit    9150  disabled       
+topology/pod-1/node-201/sys/phys-[eth1/6]          up           inherit    9150  disabled       
+topology/pod-1/node-201/sys/phys-[eth1/7]          up           inherit    9150  disabled       
+topology/pod-1/node-201/sys/phys-[eth1/8]          up           inherit    9150  disabled       
+topology/pod-1/node-201/sys/phys-[eth1/9]          up           inherit    9150  disabled       
+topology/pod-1/node-201/sys/phys-[eth1/10]         up           inherit    9150  disabled       
+topology/pod-1/node-201/sys/phys-[eth1/11]         up           inherit    9150  disabled       
+topology/pod-1/node-201/sys/phys-[eth1/12]         up           inherit    9150  disabled       
+topology/pod-1/node-201/sys/phys-[eth1/13]         up           inherit    9150  disabled       
+topology/pod-1/node-201/sys/phys-[eth1/14]         up           inherit    9150  disabled       
