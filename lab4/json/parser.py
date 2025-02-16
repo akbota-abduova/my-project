@@ -1,7 +1,7 @@
 import json
 
 # Открываем JSON-файл и загружаем данные
-with open("sample-data.json", "r") as file:
+with open("C:/Users/user/Desktop/pp2/my-project/lab4/json/sample-data.json", "r") as file:
     data = json.load(file)
 
 # Получаем список интерфейсов
