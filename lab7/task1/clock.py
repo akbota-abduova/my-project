@@ -1,37 +1,37 @@
 import pygame
-import time
 
+# Инициализация Pygame
 pygame.init()
 
-# Загружаем фотки
-mickey_image = pygame.image.load('C:/Users/user/Downloads/mickey_hands.png')
-right_hand = pygame.image.load('C:/Users/user/Downloads/right_hand.png')
-left_hand = pygame.image.load('C:/Users/user/Downloads/left_hand.png')
+# Загрузка изображений
+mickey_image = pygame.image.load('mickey_hands.png')
+right_hand = pygame.image.load('right_hand.png')
+left_hand = pygame.image.load('left_hand.png')
 
+# Уменьшаем размер изображений для лучшего отображения
+mickey_image = pygame.transform.scale(mickey_image, (200, 200))  # Изменение размера изображения Микки
+right_hand = pygame.transform.scale(right_hand, (50, 50))  # Изменение размера правой руки
+left_hand = pygame.transform.scale(left_hand, (50, 50))  # Изменение размера левой руки
 
-# Создаем окно
+# Создание окна
 screen = pygame.display.set_mode((800, 600))
-clock = pygame.time.Clock()  # Настроим таймер
 
+# Настройка таймера
+clock = pygame.time.Clock()
+
+# Главный цикл
 while True:
-    screen.fill((255, 255, 255))  #фон
-    
-    # Получаем текущее время
-    seconds = int(time.time()) % 60  # Сек
-    minutes = (int(time.time()) // 60) % 60  # Мин
-    
-    # углы 
-    second_angle = 6 * seconds  # 360 градусов за 60 секунд
-    minute_angle = 6 * minutes  # 360 градусов за 60 минут
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            pygame.quit()
+            quit()
 
-    # Вращаем руки
-    rotated_right_hand = pygame.transform.rotate(right_hand, minute_angle)
-    rotated_left_hand = pygame.transform.rotate(left_hand, second_angle)
-    
-    # Рисуем изображения 
-    screen.blit(mickey_image, (400, 300)) 
-    screen.blit(rotated_right_hand, (400, 300))  
-    screen.blit(rotated_left_hand, (400, 300))  
+    # Отображаем фон и изображения
+    screen.fill((255, 255, 255))  # Белый фон
+    screen.blit(mickey_image, (100, 100))  # Рисуем Микки
+    screen.blit(right_hand, (300, 300))  # Минутная стрелка
+    screen.blit(left_hand, (400, 400))  # Секундная стрелка
 
-    pygame.display.flip()  # Обнова экранф
-    clock.tick(60)  # FPS до 60
+    pygame.display.flip()  # Обновление экрана
+
+    clock.tick(60)  # Ограничиваем FPS до 60
