@@ -39,12 +39,27 @@ def draw_snake(snake_body):
 def draw_food(food_position):
     pygame.draw.rect(screen, RED, (food_position[0], food_position[1], BLOCK_SIZE, BLOCK_SIZE))
 
+
+def generate_prepyat(snake_body):
+    while True:
+        x = random.randint(0, (SCREEN_WIDTH - BLOCK_SIZE) // BLOCK_SIZE) * BLOCK_SIZE
+        y = random.randint(0, (SCREEN_HEIGHT - BLOCK_SIZE) // BLOCK_SIZE) * BLOCK_SIZE
+        if (x, y) not in snake_body:  # Проверяем, что еда не появляется на змейке
+            weight = random.randint(1, 10)  # Рандомный вес еды (от 1 до 10)
+            spawn_time = time.time()  # Время появления еды
+            return x, y, weight, spawn_time
+
+def draw_prepyat(prepyat_position):
+    pygame.draw.rect(screen, WHITE, (prepyat_position[0], prepyat_position[1], BLOCK_SIZE, BLOCK_SIZE))
+
+      
 # Основная функция игры
 def game():
     # Начальное положение змейки
     snake = [(100, 100), (90, 100), (80, 100)]
     direction = "RIGHT"  # Начальное направление
     food_x, food_y, food_weight, food_time = generate_food(snake)  # Генерация еды с весом и временем
+    prepyat_x, prepyat_y, prepyat_weight, prepyat_time = generate_prepyat(snake)
     score = 0  # Очки
     level = 1  # Уровень
     speed = SPEED  # Скорость игры
