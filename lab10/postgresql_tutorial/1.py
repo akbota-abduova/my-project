@@ -11,7 +11,7 @@ cur = conn.cursor()
 
 cur.execute("""
     CREATE TABLE IF NOT EXISTS phonebook(
-        if SERIAL PRIMARY KEY,
+        id SERIAL PRIMARY KEY,
         name VARCHAR(600),
         phone VARCHAR(20)
     )            
