@@ -18,7 +18,8 @@ if choice == "name":
 elif choice == "phone":
     cur_phone_n = input("Which phone number?: ")
     new_phone_n = input("Enter your new phone number: ")
-    cur.execute("""UPDATE phonebook set name = %s WHERE name = %s""", (new_phone_n, cur_phone_n))
+    cur.execute("""UPDATE phonebook set phone = %s WHERE phone = %s""", (new_phone_n, cur_phone_n))
+
 else:
     "There are noother options :("
 
