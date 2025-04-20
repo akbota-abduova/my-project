@@ -21,7 +21,8 @@ elif choice == "phone":
     cur.execute("""UPDATE phonebook set phone = %s WHERE phone = %s""", (new_phone_n, cur_phone_n))
 
 else:
-    "There are noother options :("
+    print("There are no other options :(")
+
 
 conn.commit()
 
