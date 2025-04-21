@@ -1,4 +1,4 @@
-import pygame, sys, random
+import pygame, sys, random, time
 import psycopg2
 
 conn = psycopg2.connect(
@@ -38,141 +38,133 @@ else:
 
 print("Welcome", username, "! Your user ID is", user_id)
 
-cur.execute("SELECT score, level FROM user_score WHERE user_id = %s ORDER BY id DESC LIMIT 1", (user_id,))
-last = cur.fetchone()
-if last:
-    print("Last score:", last[0], "Level:", last[1])
-else:
-    print("No previous scores found.")
 
-pygame.init()
-WIDTH, HEIGHT = 600, 400
-CELL_SIZE = 20
-screen = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("Snake Game")
+SCREEN_WIDTH, SCREEN_HEIGHT = 620, 400
+BLOCK_SIZE = 20  
+SPEED = 10 
+
 WHITE = (255, 255, 255)
-GREEN = (0, 200, 0)
+GREEN = (0, 255, 0)
 RED = (255, 0, 0)
+BLUE = (0, 0, 255)
 BLACK = (0, 0, 0)
-clock = pygame.time.Clock()
-FPS = 10
-font = pygame.font.SysFont("Verdana", 20)
 
-def get_walls(level):
-    walls = []
-    if level == 1:
-        return []
-    elif level == 2:
-        for x in range(0, WIDTH, CELL_SIZE):
-            walls.append((x, HEIGHT // 2))
-    elif level == 3:
-        for y in range(0, HEIGHT, CELL_SIZE):
-            walls.append((WIDTH // 2, y))
-    elif level >= 4:
-        for x in range(0, WIDTH, CELL_SIZE):
-            walls.append((x, CELL_SIZE))
-            walls.append((x, HEIGHT - CELL_SIZE * 2))
-        for y in range(CELL_SIZE * 2, HEIGHT - CELL_SIZE * 2, CELL_SIZE):
-            walls.append((CELL_SIZE, y))
-            walls.append((WIDTH - CELL_SIZE * 2, y))
-    return walls
+# Инициализация Pygame
+pygame.init()
 
-def generate_food():
+# Установка шрифта
+font = pygame.font.Font(None, 30)
+
+# Создание окна
+screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+pygame.display.set_caption("Змейка")
+
+# Функция для вывода текста на экран
+def draw_text(text, x, y, color=WHITE):
+    text_surface = font.render(text, True, color)
+    screen.blit(text_surface, (x, y))
+
+# Функция для генерации случайной позиции еды
+def generate_food(snake_body):
     while True:
-        x = random.randint(0, (WIDTH - CELL_SIZE) // CELL_SIZE) * CELL_SIZE
-        y = random.randint(0, (HEIGHT - CELL_SIZE) // CELL_SIZE) * CELL_SIZE
-        if (x, y) not in snake and (x, y) not in walls:
-            value = random.choice([1, 2, 3])
-            time_spawned = pygame.time.get_ticks()
-            return {"pos": (x, y), "value": value, "time": time_spawned}
+        x = random.randint(0, (SCREEN_WIDTH - BLOCK_SIZE) // BLOCK_SIZE) * BLOCK_SIZE
+        y = random.randint(0, (SCREEN_HEIGHT - BLOCK_SIZE) // BLOCK_SIZE) * BLOCK_SIZE
+        if (x, y) not in snake_body:  # Проверяем, что еда не появляется на змейке
+            return x, y
 
-snake = [(100, 100), (80, 100), (60, 100)]
-direction = "RIGHT"
-paused = False
-score = 0
-level = 1
-walls = get_walls(level)
-food = generate_food()
+# Функция отрисовки змейки и еды
+def draw_snake(snake_body):
+    for segment in snake_body:
+        pygame.draw.rect(screen, GREEN, (segment[0], segment[1], BLOCK_SIZE, BLOCK_SIZE))
 
-running = True
-while running:
+def draw_food(food_position):
+    pygame.draw.rect(screen, RED, (food_position[0], food_position[1], BLOCK_SIZE, BLOCK_SIZE))
+
+# Основная функция игры
+def game():
+    # Начальное положение змейки
+    snake = [(100, 100), (90, 100), (80, 100)]
+    direction = "RIGHT"  # Начальное направление
+    food = generate_food(snake)  # Генерация еды
+    score = 0  # Очки
+    level = 1  # Уровень
+    speed = SPEED  # Скорость игры
+
+    clock = pygame.time.Clock()
+    running = True
+
+    while running:
+        screen.fill(BLACK)  # Очищаем экран
+
+        # Обработка событий (клавиши для движения)
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+                pygame.quit()
+                sys.exit()
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_UP and direction != "DOWN":
+                    direction = "UP"
+                elif event.key == pygame.K_DOWN and direction != "UP":
+                    direction = "DOWN"
+                elif event.key == pygame.K_LEFT and direction != "RIGHT":
+                    direction = "LEFT"
+                elif event.key == pygame.K_RIGHT and direction != "LEFT":
+                    direction = "RIGHT"
+
+        # Движение змейки
+        head_x, head_y = snake[0]  # Получаем координаты головы
+        if direction == "UP":
+            head_y -= BLOCK_SIZE
+        elif direction == "DOWN":
+            head_y += BLOCK_SIZE
+        elif direction == "LEFT":
+            head_x -= BLOCK_SIZE
+        elif direction == "RIGHT":
+            head_x += BLOCK_SIZE
+
+        # Проверка столкновений со стенами
+        if head_x < 0 or head_x >= SCREEN_WIDTH or head_y < 0 or head_y >= SCREEN_HEIGHT:
+            running = False  # Игра заканчивается
+
+        # Проверка столкновений с собой
+        if (head_x, head_y) in snake:
+            running = False  # Игра заканчивается
+
+        # Добавление нового сегмента змейки (головы)
+        snake.insert(0, (head_x, head_y))
+
+        # Проверка, съела ли змейка еду
+        if (head_x, head_y) == food:
+            score += 1
+            food = generate_food(snake)  # Генерируем новую еду
+            # Каждые 3 очка увеличиваем уровень и ускоряем змейку
+            if score % 3 == 0:
+                level += 1
+                speed += 2  # Увеличиваем скорость
+        else:
+            snake.pop()  # Удаляем последний сегмент змейки (если еда не съедена)
+
+        # Отрисовка змейки и еды
+        draw_snake(snake)
+        draw_food(food)
+
+        # Отображение счета и уровня
+        draw_text(f"Счет: {score}", 10, 10)
+        draw_text(f"Уровень: {level}", SCREEN_WIDTH - 150, 10)
+
+        pygame.display.update()
+        clock.tick(speed)  # Контроль скорости игры
+
+    # Если игрок проиграл, показываем сообщение и выходим
     screen.fill(BLACK)
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_SPACE:
-                paused = not paused
-                if paused:
-                    print("Paused. Score:", score, "Level:", level)
-                    save = input("Save result? (y/n): ").lower()
-                    if save == 'y':
-                        cur.execute("INSERT INTO user_score (user_id, score, level) VALUES (%s, %s, %s)", (user_id, score, level))
-                        conn.commit()
-            elif event.key == pygame.K_UP and direction != "DOWN":
-                direction = "UP"
-            elif event.key == pygame.K_DOWN and direction != "UP":
-                direction = "DOWN"
-            elif event.key == pygame.K_LEFT and direction != "RIGHT":
-                direction = "LEFT"
-            elif event.key == pygame.K_RIGHT and direction != "LEFT":
-                direction = "RIGHT"
+    draw_text("Вы проиграли!", SCREEN_WIDTH // 2 - 60, SCREEN_HEIGHT // 2 - 10, RED)
+    pygame.display.update()
+    time.sleep(2)
+    pygame.quit()
+    sys.exit()
 
-    if paused:
-        pygame.display.flip()
-        clock.tick(10)
-        continue
-
-    head_x, head_y = snake[0]
-    if direction == "UP": head_y -= CELL_SIZE
-    elif direction == "DOWN": head_y += CELL_SIZE
-    elif direction == "LEFT": head_x -= CELL_SIZE
-    elif direction == "RIGHT": head_x += CELL_SIZE
-
-    new_head = (head_x, head_y)
-
-    if head_x < 0 or head_x >= WIDTH or head_y < 0 or head_y >= HEIGHT or new_head in snake or new_head in walls:
-        screen.fill(BLACK)
-        screen.blit(font.render("GAME OVER", True, RED), (WIDTH // 2 - 100, HEIGHT // 2 - 50))
-        screen.blit(font.render(f"Score: {score}", True, WHITE), (WIDTH // 2 - 60, HEIGHT // 2))
-        screen.blit(font.render(f"Level: {level}", True, WHITE), (WIDTH // 2 - 60, HEIGHT // 2 + 30))
-        pygame.display.flip()
-        cur.execute("INSERT INTO user_score (user_id, score, level) VALUES (%s, %s, %s)", (user_id, score, level))
-        conn.commit()
-        pygame.time.wait(3000)
-        pygame.quit()
-        cur.close()
-        conn.close()
-        sys.exit()
-
-    if new_head == food["pos"]:
-        snake.insert(0, new_head)
-        score += food["value"]
-        food = generate_food()
-        if score % 4 == 0:
-            level += 1
-            FPS += 2
-            walls = get_walls(level)
-    elif pygame.time.get_ticks() - food["time"] > 5000:
-        food = generate_food()
-    else:
-        snake.insert(0, new_head)
-        snake.pop()
-
-    pygame.draw.rect(screen, RED, (*food["pos"], CELL_SIZE, CELL_SIZE))
-    screen.blit(font.render(str(food["value"]), True, WHITE), (food["pos"][0]+5, food["pos"][1]+2))
-
-    for wall in walls:
-        pygame.draw.rect(screen, (100, 100, 100), (*wall, CELL_SIZE, CELL_SIZE))
-
-    for i, block in enumerate(snake):
-        color = (255, 255, 0) if i == 0 else GREEN
-        pygame.draw.rect(screen, color, (*block, CELL_SIZE, CELL_SIZE))
-
-    screen.blit(font.render(f"Score: {score}", True, WHITE), (10, 10))
-    screen.blit(font.render(f"Level: {level}", True, WHITE), (WIDTH - 100, 10))
-
-    pygame.display.flip()
-    clock.tick(FPS)
-
-pygame.quit()
+# Запуск игры
+game()
+cur.close()
+conn.close()
